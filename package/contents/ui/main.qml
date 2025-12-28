@@ -25,7 +25,14 @@ import "TimeZoneData.js" as TimeZoneData
 
     property var currentDateTime: new Date()
 
-    property string activeTimeZone: Plasmoid.configuration.timeZone
+    Timer {
+        interval: 1000
+        running: true
+        repeat: true
+        onTriggered: root.currentDateTime = new Date()
+    }
+
+    property string activeTimeZone: Plasmoid.configuration.timeZone || "Local"
     property int timeZoneOffset: 0
 
     property var displayDateTime: {
@@ -64,7 +71,7 @@ import "TimeZoneData.js" as TimeZoneData
             
             if (sourceName === activeTimeZone || (activeTimeZone === "Local" && sourceName === "Local")) {
                 if (data["DateTime"]) {
-                    root.currentDateTime = data["DateTime"]
+                    // root.currentDateTime = data["DateTime"] // Use local timer instead
                 }
                 if (data["Offset"] !== undefined) {
                     root.timeZoneOffset = data["Offset"]
@@ -78,7 +85,7 @@ import "TimeZoneData.js" as TimeZoneData
         target: Plasmoid.configuration
         function onTimeZoneChanged() {
             var src = Plasmoid.configuration.timeZone
-            root.activeTimeZone = src
+            // root.activeTimeZone = src // Binding handles this automatically
             
             // Reconnect logic is handled by binding on connectedSources, 
             // but we want to update data immediately if possible.
@@ -87,7 +94,7 @@ import "TimeZoneData.js" as TimeZoneData
             
             if (timeSource.data[engineSource]) {
                 if (timeSource.data[engineSource]["DateTime"]) {
-                    root.currentDateTime = timeSource.data[engineSource]["DateTime"]
+                    // root.currentDateTime = timeSource.data[engineSource]["DateTime"]
                 }
                 if (timeSource.data[engineSource]["Offset"] !== undefined) {
                     root.timeZoneOffset = timeSource.data[engineSource]["Offset"]

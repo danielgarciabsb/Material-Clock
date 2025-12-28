@@ -10,7 +10,7 @@ Item {
     property alias cfg_colorHex: colorhex.text
     property alias cfg_dateFormat: dateFormatField.text
     property alias cfg_timeFormat: timeFormatField.text
-    property alias cfg_timeZone: timeZoneComboBox.currentValue
+    property string cfg_timeZone: "Local"
 
     signal configurationChanged
 
@@ -122,7 +122,11 @@ Item {
                 model: TimeZoneData.timeZones
                 textRole: "text"
                 valueRole: "value"
-                onCurrentValueChanged: configurationChanged()
+                currentIndex: indexOfValue(cfg_timeZone)
+                onActivated: {
+                    cfg_timeZone = currentValue
+                    configurationChanged()
+                }
             }
         }
 
