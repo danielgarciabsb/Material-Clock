@@ -62,6 +62,11 @@ import "TimeZoneData.js" as TimeZoneData
         var targetOffsetSeconds = root.timeZoneOffset
         
         var diffSeconds = targetOffsetSeconds - localOffsetSeconds
+
+        // Snap to nearest 15 minutes (900 seconds) to avoid small drifts or 1-minute errors
+        if (Math.abs(diffSeconds) % 900 !== 0) {
+             diffSeconds = Math.round(diffSeconds / 900) * 900
+        }
         
         return new Date(currentDateTime.getTime() + diffSeconds * 1000)
     }
