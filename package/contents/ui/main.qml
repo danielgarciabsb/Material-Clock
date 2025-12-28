@@ -3,7 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.12
 import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.plasma5support as Plasma5Support
-
+import "TimeZoneData.js" as TimeZoneData
     PlasmoidItem {
         id: root
 
@@ -109,7 +109,7 @@ import org.kde.plasma.plasma5support as Plasma5Support
         ColumnLayout {
             anchors.centerIn: parent
             width: parent.width
-            spacing: 5
+            spacing: 2
 
             // Date Text (small, centered)
             Text {
@@ -131,6 +131,27 @@ import org.kde.plasma.plasma5support as Plasma5Support
                 text: Qt.formatDateTime(root.displayDateTime, Plasmoid.configuration.timeFormat)
                 color: colorPlasmoid
                 horizontalAlignment: Text.AlignHCenter
+            }
+
+            // Time Zone Label
+            Text {
+                id: timeZoneText
+                Layout.alignment: Qt.AlignHCenter
+                font.family: poppinsThin.name
+                font.pixelSize: root.height * 0.07
+                text: {
+                    var tz = root.activeTimeZone;
+                    if (tz === "Local" || tz === "") return "";
+                    for (var i = 0; i < TimeZoneData.timeZones.length; i++) {
+                        if (TimeZoneData.timeZones[i].value === tz) {
+                            return TimeZoneData.timeZones[i].text;
+                        }
+                    }
+                    return tz;
+                }
+                color: colorPlasmoid
+                horizontalAlignment: Text.AlignHCenter
+                visible: root.activeTimeZone !== "Local" && root.activeTimeZone !== ""
             }
 
 
