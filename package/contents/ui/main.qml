@@ -32,8 +32,13 @@ import "TimeZoneData.js" as TimeZoneData
         onTriggered: root.currentDateTime = new Date()
     }
 
-    property string activeTimeZone: Plasmoid.configuration.timeZone || "Local"
+    property string activeTimeZone: {
+        var tz = Plasmoid.configuration.selectedTimeZone
+        return tz || "Local"
+    }
     property int timeZoneOffset: 0
+
+
 
     property var displayDateTime: {
         // If Local, just return current time
@@ -61,45 +66,53 @@ import "TimeZoneData.js" as TimeZoneData
         return new Date(currentDateTime.getTime() + diffSeconds * 1000)
     }
 
-    Plasma5Support.DataSource {
-        id: timeSource
-        engine: "time"
-        connectedSources: [activeTimeZone === "Local" ? "Local" : activeTimeZone]
-        interval: 60000
-        onDataChanged: function(sourceName, data) {
-
-            
-            if (sourceName === activeTimeZone || (activeTimeZone === "Local" && sourceName === "Local")) {
-                if (data["DateTime"]) {
-                    // root.currentDateTime = data["DateTime"] // Use local timer instead
-                }
-                if (data["Offset"] !== undefined) {
-                    root.timeZoneOffset = data["Offset"]
-                }
-            }
+    function updateTimeZoneData() {
+        var src = activeTimeZone
+        var engineSource = src === "Local" ? "Local" : src
+        
+        timeSource.connectSource(engineSource)
+        
+        // Check immediate availability
+        if (timeSource.data[engineSource]) {
+             if (timeSource.data[engineSource]["Offset"] !== undefined) {
+                 root.timeZoneOffset = timeSource.data[engineSource]["Offset"]
+             }
         }
     }
 
-    // Force update when timezone changes
+    onActiveTimeZoneChanged: {
+        updateTimeZoneData()
+    }
+
+
+
+    Plasma5Support.DataSource {
+        id: timeSource
+        engine: "time"
+        // connectedSources: [activeTimeZone === "Local" ? "Local" : activeTimeZone] // We manage manually to be safe
+        interval: 60000
+        onDataChanged: function(sourceName, data) {
+            if (sourceName === (activeTimeZone === "Local" ? "Local" : activeTimeZone)) {
+                 if (data["Offset"] !== undefined) {
+                    root.timeZoneOffset = data["Offset"]
+                 }
+            }
+        }
+        Component.onCompleted: {
+            updateTimeZoneData()
+        }
+    }
+
+    // Force initial update
+    Component.onCompleted: {
+        updateTimeZoneData()
+    }
+    
+    // Config watcher
     Connections {
         target: Plasmoid.configuration
-        function onTimeZoneChanged() {
-            var src = Plasmoid.configuration.timeZone
-            // root.activeTimeZone = src // Binding handles this automatically
-            
-            // Reconnect logic is handled by binding on connectedSources, 
-            // but we want to update data immediately if possible.
-            
-            var engineSource = src === "Local" ? "Local" : src
-            
-            if (timeSource.data[engineSource]) {
-                if (timeSource.data[engineSource]["DateTime"]) {
-                    // root.currentDateTime = timeSource.data[engineSource]["DateTime"]
-                }
-                if (timeSource.data[engineSource]["Offset"] !== undefined) {
-                    root.timeZoneOffset = timeSource.data[engineSource]["Offset"]
-                }
-            }
+        function onSelectedTimeZoneChanged() {
+             // updateTimeZoneData is called by activeTimeZone binding change
         }
     }
     
@@ -160,9 +173,6 @@ import "TimeZoneData.js" as TimeZoneData
                 horizontalAlignment: Text.AlignHCenter
                 visible: root.activeTimeZone !== "Local" && root.activeTimeZone !== ""
             }
-
-
-
         }
     }
 }

@@ -10,7 +10,7 @@ Item {
     property alias cfg_colorHex: colorhex.text
     property alias cfg_dateFormat: dateFormatField.text
     property alias cfg_timeFormat: timeFormatField.text
-    property string cfg_timeZone: "Local"
+    property string cfg_selectedTimeZone: "Local"
 
     signal configurationChanged
 
@@ -122,9 +122,21 @@ Item {
                 model: TimeZoneData.timeZones
                 textRole: "text"
                 valueRole: "value"
-                currentIndex: indexOfValue(cfg_timeZone)
+                
+                // Helper to safely find index
+                function getTimeZoneIndex(val) {
+                    for (var i = 0; i < TimeZoneData.timeZones.length; i++) {
+                        if (TimeZoneData.timeZones[i].value === val) {
+                            return i;
+                        }
+                    }
+                    return 0; // Default to Local (index 0) if not found
+                }
+
+                currentIndex: getTimeZoneIndex(cfg_selectedTimeZone)
+                
                 onActivated: {
-                    cfg_timeZone = currentValue
+                    cfg_selectedTimeZone = currentValue
                     configurationChanged()
                 }
             }

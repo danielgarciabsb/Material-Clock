@@ -14,7 +14,7 @@
     <entry name="timeFormat" type="String">
       <default>HH:mm</default>
     </entry>
-    <entry name="timeZone" type="String">
+    <entry name="selectedTimeZone" type="String">
       <default>Local</default>
     </entry>
   </group>
