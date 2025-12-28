@@ -117,7 +117,7 @@ import "TimeZoneData.js" as TimeZoneData
                 Layout.alignment: Qt.AlignHCenter
                 font.family: poppinsThin.name
                 font.pixelSize: root.height * 0.1
-                text: Qt.formatDateTime(root.displayDateTime, Plasmoid.configuration.dateFormat).toLowerCase()
+                text: root.displayDateTime.toLocaleString(Qt.locale(), Plasmoid.configuration.dateFormat).toLowerCase()
                 color: colorPlasmoid
                 horizontalAlignment: Text.AlignHCenter
             }
@@ -128,7 +128,7 @@ import "TimeZoneData.js" as TimeZoneData
                 Layout.alignment: Qt.AlignHCenter
                 font.family: poppinsRegular.name
                 font.pixelSize: root.height * 0.4
-                text: Qt.formatDateTime(root.displayDateTime, Plasmoid.configuration.timeFormat)
+                text: root.displayDateTime.toLocaleString(Qt.locale(), Plasmoid.configuration.timeFormat)
                 color: colorPlasmoid
                 horizontalAlignment: Text.AlignHCenter
             }
